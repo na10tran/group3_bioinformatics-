@@ -2,6 +2,7 @@ import copy
 import pandas as pd
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
 def show(T):
     T = copy.deepcopy(T)
@@ -12,7 +13,8 @@ def show(T):
             max_value = T[n1][n2]['weight']
     for n1,n2 in T.edges():
         T[n1][n2]['weight']=max_value - T[n1][n2]['weight'] + 3
-    pos=nx.spring_layout(T)
+    pos=nx.spring_layout(T)#)
+ #   pos = nx.planar_layout(T)
     nx.draw(T,pos,with_labels=True)
     nx.draw_networkx_edge_labels(T,pos,edge_labels=labels);
     
@@ -20,6 +22,8 @@ def show_adj(T):
     if len(T.nodes()) == 0:
         return pd.DataFrame()
     return pd.DataFrame(nx.adjacency_matrix(T).todense(),index=T.nodes(),columns=T.nodes())
+
+
 
 
 def dfs_path(G,nodei,nodej):
@@ -53,7 +57,10 @@ def limb(D,j):
     for ix,i in enumerate(nodes):
         for kx in range(ix+1,len(nodes)):
             k = nodes[kx]
-            min_length = min(min_length, (D[j][i] + D[j][k] - D[i][k])/2)
+            w = (D[j][i] + D[j][k] - D[i][k])/2
+            #if w < 0:
+             #   w=0
+            min_length = min(min_length, w)
     return min_length
 
 def find(D,n):
@@ -82,13 +89,17 @@ def additive_phylogeny(D,new_number):
     Dtrimmed = D.drop(n).drop(n,axis=1)
     for j in Dtrimmed.index:
         D.loc[j,n] = D.loc[j,n] - limbLength
-        D.loc[n,j] = D.loc[j,n
+        D.loc[n,j] = D.loc[j,n]
     Dtrimmed = D.drop(n).drop(n,axis=1)
     T = additive_phylogeny(Dtrimmed,new_number+1)
     i,k = find(D,n)
     if D.loc[j,n] < D.loc[i,n]:
         i,k = k,i
     v = "v%s"%new_number
+    print("i: {}  n: {}  k: {}  v: {}".format(i,n,k,v))
+    print(limbLength)
+    print(D)
+    print()
     path = dfs_path(T,i,k)
     edgeList = T.edges.data()
     for j in range(len(path)-1):
@@ -113,3 +124,6 @@ def additive_phylogeny(D,new_number):
     T.add_edge(n,v,weight=limbLength)
     T.add_edge(k,v,weight=w2)
     return T
+
+
+
