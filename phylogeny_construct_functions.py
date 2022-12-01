@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+from IPython.display import display
 
 def show(T):
     T = copy.deepcopy(T)
@@ -23,6 +24,29 @@ def show_adj(T):
         return pd.DataFrame()
     return pd.DataFrame(nx.adjacency_matrix(T).todense(),index=T.nodes(),columns=T.nodes())
 
+def make_distance_table_csv(T, node_name):
+    T = copy.deepcopy(T)
+    length = dict(nx.all_pairs_dijkstra_path_length(T)) 
+    specific_species = length[node_name]
+    list_names = list()
+    for n_name in (specific_species):
+        list_names.append(n_name.strip())
+    final_dict = dict(zip(list_names, list(specific_species.values())))
+    df = pd.DataFrame([final_dict])
+    df = df.transpose()
+    df.columns = ['Distance from Node: ' + node_name]
+    df = df.iloc[1:]
+    #display(df)
+    df.to_csv('table_out.csv')
+
+def display_graph_with_size(T,start_node, size):
+    #given start node, find farthest path nodes from node
+    #access path lengths from start node
+    #delete farthest nodes from list
+    #create a new graph with updated node list --> need to save deepcopy of graph, faster to implement??
+    #OR ------------------------
+    
+    return 0
 
 
 
